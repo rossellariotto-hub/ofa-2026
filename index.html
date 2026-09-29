@@ -1,1 +1,621 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OFA Ingegneria UniCal - Appello 2 Ottobre 2026</title>
+  <!-- Tailwind CSS per la grafica -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- MathJax per la notazione matematica scolastica -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <!-- Icone Lucide -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
 
+  <!-- INTESTAZIONE -->
+  <header class="bg-slate-800 border-b border-slate-700 py-6 px-4 shadow-lg sticky top-0 z-40">
+    <div class="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-3">
+        <div class="p-3 bg-red-600 rounded-xl shadow-md">
+          <i data-lucide="graduation-cap" class="w-8 h-8 text-white"></i>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight text-white">OFA Ingegneria UniCal</h1>
+          <p class="text-sm text-slate-400">Simulatore d'Esame - Appello 2 Ottobre 2026 (Stile Proff. Carbone / Dell'Accio)</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-4 bg-slate-900/80 px-4 py-2 rounded-lg border border-slate-700">
+        <div class="text-center">
+          <span class="block text-xs text-slate-400 uppercase tracking-wider font-semibold">Punteggio</span>
+          <span id="score-display" class="text-xl font-bold text-emerald-400">0 / 0</span>
+        </div>
+        <div class="h-8 w-px bg-slate-700"></div>
+        <button onclick="resetQuiz()" class="text-slate-400 hover:text-white transition-colors" title="Riavvia Quiz">
+          <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENUTO PRINCIPALE -->
+  <main class="flex-grow max-w-5xl w-full mx-auto p-4 md:p-6 space-y-6">
+
+    <!-- PANNELLO BANDO OFA UNICAL -->
+    <section class="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 shadow-sm">
+      <h2 class="text-lg font-semibold text-white flex items-center gap-2 mb-3">
+        <i data-lucide="info" class="w-5 h-5 text-red-400"></i> Soglie di Superamento OFA (A.A. 2026/2027)
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-sm">
+        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
+          <p class="font-medium text-slate-300">Biomedica</p>
+          <p class="text-slate-400 mt-1">Matematica $\ge 6$<br>Logica $\ge 3$</p>
+        </div>
+        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
+          <p class="font-medium text-slate-300">Informatica</p>
+          <p class="text-slate-400 mt-1">Matematica $\ge 6$<br>Logica $\ge 3$</p>
+        </div>
+        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
+          <p class="font-medium text-slate-300">Elettronica</p>
+          <p class="text-slate-400 mt-1">Matematica $\ge 6$</p>
+        </div>
+        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/50">
+          <p class="font-medium text-slate-300">Chimica</p>
+          <p class="text-slate-400 mt-1">Matematica $\ge 5$</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCHEDA QUESITO CORRENTE -->
+    <section id="quiz-card" class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+      <!-- Indicatore di avanzamento -->
+      <div class="flex justify-between items-center mb-4">
+        <span id="question-number" class="text-xs font-semibold px-3 py-1 bg-red-500/20 text-red-300 rounded-full border border-red-500/30">
+          Quesito 1 di 20
+        </span>
+        <span id="question-category" class="text-xs text-slate-400 font-medium">Logaritmi</span>
+      </div>
+
+      <!-- Testo del Quesito -->
+      <div class="mb-6">
+        <h3 id="question-text" class="text-xl font-medium text-white leading-relaxed">
+          <!-- Inserito dinamicamente -->
+        </h3>
+      </div>
+
+      <!-- Opzioni di risposta (A, B, C, D) -->
+      <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+        <!-- Inserite dinamicamente -->
+      </div>
+
+      <!-- Pulsante per confermare la risposta -->
+      <div class="flex justify-end border-t border-slate-700/60 pt-4">
+        <button id="submit-btn" onclick="checkAnswer()" disabled class="px-6 py-2.5 bg-red-600 hover:bg-red-500 disabled:opacity-40 disabled:hover:bg-red-600 text-white font-medium rounded-xl transition-all shadow-md flex items-center gap-2">
+          Conferma Risposta
+          <i data-lucide="check-circle" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODALE SCORCIATOIA ZERO CALCOLI -->
+  <div id="modal-overlay" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-5 transform transition-all">
+      
+      <div class="flex items-center justify-between border-b border-slate-700 pb-3">
+        <div id="modal-header-status" class="flex items-center gap-2 font-bold text-lg">
+          <!-- Stato risposta (Corretta / Errata) -->
+        </div>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Spiegazione Metodo Zero Calcoli -->
+      <div class="space-y-3">
+        <h4 class="text-sm font-semibold uppercase tracking-wider text-amber-400 flex items-center gap-2">
+          <i data-lucide="zap" class="w-4 h-4"></i> Scorciatoia "Zero Calcoli"
+        </h4>
+        <div id="explanation-text" class="text-slate-300 text-sm leading-relaxed bg-slate-900/90 p-4 rounded-xl border border-slate-700/80 space-y-2">
+          <!-- Contenuto dinamico -->
+        </div>
+      </div>
+
+      <!-- Azioni della modale -->
+      <div class="flex justify-end pt-2">
+        <button onclick="nextQuestion()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-xl transition-all shadow-md flex items-center gap-2">
+          Prossimo Quesito
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // DATASET DI 20 QUESITI FORMATO PRECORSI UNICAL
+    const quizData = [
+      {
+        category: "Logaritmi",
+        text: "Risolvere la disequazione: $\\log_{\\frac{1}{2}}\\left(\\frac{x+1}{x-1}\\right) > \\log_{\\frac{1}{2}}\\left(\\frac{x}{x+1}\\right)$",
+        options: [
+          { letter: "A", text: "$x < -1$" },
+          { letter: "B", text: "per ogni valore di $x$" },
+          { letter: "C", text: "$x > -1$" },
+          { letter: "D", text: "$x = 1$" }
+        ],
+        correct: "A",
+        explanation: `
+          <p><strong>Passaggio 1 (Sostituzione rapida):</strong> Scegliamo un numero semplice dalle opzioni. Proviamo $x = -2$ (valore presente nell'opzione A):</p>
+          <p>$\\frac{-2+1}{-2-1} = \\frac{-1}{-3} = \\frac{1}{3} \\implies \\log_{\\frac{1}{2}}\\left(\\frac{1}{3}\\right)$</p>
+          <p>$\\frac{-2}{-2+1} = \\frac{-2}{-1} = 2 \\implies \\log_{\\frac{1}{2}}(2) = -1$</p>
+          <p><strong>Passaggio 2 (Proprietà delle basi $< 1$):</strong> Essendo la base $\\frac{1}{2} < 1$, il logaritmo è decrescente: numeri più piccoli danno valori più grandi. Poiché $\\frac{1}{3} < 2$, si ha che $\\log_{\\frac{1}{2}}\\left(\\frac{1}{3}\\right) > \\log_{\\frac{1}{2}}(2)$, la disequazione è verificata!</p>
+          <p><strong>Conclusione:</strong> La risposta corretta è la <strong>(A)</strong>.</p>
+        `
+      },
+      {
+        category: "Trigonometria",
+        text: "Risolvere l'equazione: $\\left(\\sin x - \\frac{1}{2}\\right) \\cdot (\\cos x - 3) = 0$ nell'intervallo $[0, \\pi]$.",
+        options: [
+          { letter: "A", text: "$x = \\frac{\\pi}{3}, x = \\frac{2}{3}\\pi$" },
+          { letter: "B", text: "nessuna soluzione" },
+          { letter: "C", text: "$x = \\frac{\\pi}{6}$" },
+          { letter: "D", text: "$x = \\frac{\\pi}{6}, x = \\frac{5}{6}\\pi$" }
+        ],
+        correct: "D",
+        explanation: `
+          <p><strong>Passaggio 1 (Proprietà del coseno):</strong> Il valore di $\\cos x$ è compreso tra $-1$ e $1$. Di conseguenza, il fattore $(\\cos x - 3)$ non può mai annullarsi.</p>
+          <p><strong>Passaggio 2 (Legge di annullamento del prodotto):</strong> L'equazione si riduce a $\\sin x - \\frac{1}{2} = 0$, ovvero $\\sin x = \\frac{1}{2}$.</p>
+          <p><strong>Passaggio 3 (Controllo angoli):</strong> Nell'intervallo $[0, \\pi]$, il seno vale $\\frac{1}{2}$ negli angoli di $30^\\circ$ ($\\frac{\\pi}{6}$) e $150^\\circ$ ($\\frac{5}{6}\\pi$).</p>
+          <p><strong>Conclusione:</strong> La risposta corretta è la <strong>(D)</strong>.</p>
+        `
+      },
+      {
+        category: "Equazioni Irrazionali",
+        text: "Risolvere l'equazione: $\\sqrt{3x + 4} = 2 + x$",
+        options: [
+          { letter: "A", text: "$x = 0$" },
+          { letter: "B", text: "nessuna soluzione" },
+          { letter: "C", text: "$x = 0$ oppure $x = -1$" },
+          { letter: "D", text: "$x = 1$" }
+        ],
+        correct: "C",
+        explanation: `
+          <p><strong>Passaggio 1 (Sostituzione diretta):</strong> Sostituiamo i valori proposti nelle risposte per verificare l'uguaglianza senza elevare al quadrato.</p>
+          <p>Testiamo $x = 0$: $\\sqrt{3(0) + 4} = \\sqrt{4} = 2$. A destra: $2 + 0 = 2$. ($2 = 2$, VERO!).</p>
+          <p>Testiamo $x = -1$: $\\sqrt{3(-1) + 4} = \\sqrt{1} = 1$. A destra: $2 + (-1) = 1$. ($1 = 1$, VERO!).</p>
+          <p><strong>Conclusione:</strong> Sia $0$ che $-1$ sono soluzioni valide. La risposta corretta è la <strong>(C)</strong>.</p>
+        `
+      },
+      {
+        category: "Aritmetica",
+        text: "Determinare il minimo comune multiplo tra la terzina di numeri $\{36, 20, 45\}$.",
+        options: [
+          { letter: "A", text: "180" },
+          { letter: "B", text: "1" },
+          { letter: "C", text: "36" },
+          { letter: "D", text: "6" }
+        ],
+        correct: "A",
+        explanation: `
+          <p><strong>Passaggio 1 (Verifica divisibilità):</strong> Il minimo comune multiplo deve essere un numero maggiore o uguale al più grande del gruppo ($45$) e divisibile per tutti e tre.</p>
+          <p>Sulle opzioni proposte: $180 / 36 = 5$, $180 / 20 = 9$, $180 / 45 = 4$.</p>
+          <p><strong>Conclusione:</strong> $180$ è divisibile per $36, 20$ e $45$. La risposta corretta è la <strong>(A)</strong>.</p>
+        `
+      },
+      {
+        category: "Valore Assoluto",
+        text: "Risolvere la disequazione fratta: $\\frac{\vert{}x + 1\vert{} - 4}{\vert{}x - 1\vert{}} \\ge 0$",
+        options: [
+          { letter: "A", text: "$x \\le -5$ oppure $x \\ge 3$" },
+          { letter: "B", text: "$x \\le 3$" },
+          { letter: "C", text: "non ci sono soluzioni" },
+          { letter: "D", text: "$-5 \\le x \\le 3$" }
+        ],
+        correct: "A",
+        explanation: `
+          <p><strong>Passaggio 1 (Analisi del denominatore):</strong> Il denominatore $|x - 1|$ è un valore assoluto, quindi è sempre positivo per ogni $x \\neq 1$. Non altera il segno del rapporto.</p>
+          <p><strong>Passaggio 2 (Analisi del numeratore):</strong> La disequazione si riduce a $|x + 1| - 4 \\ge 0 \\implies |x + 1| \\ge 4$.</p>
+          <p><strong>Passaggio 3 (Proprietà del valore assoluto):</strong> $|A| \\ge K$ significa $A \\le -K$ oppure $A \\ge K$. Quindi $x + 1 \\le -4 \\implies x \\le -5$ oppure $x + 1 \\ge 4 \\implies x \\ge 3$.</p>
+          <p><strong>Conclusione:</strong> La risposta corretta è la <strong>(A)</strong>.</p>
+        `
+      },
+      {
+        category: "Radicali",
+        text: "Trovare le soluzioni della disequazione: $\\sqrt[3]{x^3 + 27} \\ge x + 3$",
+        options: [
+          { letter: "A", text: "$x \\le -3$" },
+          { letter: "B", text: "non ci sono soluzioni" },
+          { letter: "C", text: "$x = 0$ e $x = -3$" },
+          { letter: "D", text: "$-3 \\le x \\le 0$" }
+        ],
+        correct: "D",
+        explanation: `
+          <p><strong>Passaggio 1 (Test valori chiave):</strong> Proviamo $x = 0$: $\\sqrt[3]{27} = 3 \\ge 3$ (VERO). Proviamo $x = -3$: $\\sqrt[3]{0} = 0 \\ge 0$ (VERO).</p>
+          <p><strong>Passaggio 2 (Test valore interno):</strong> Proviamo un valore intermedio tra $-3$ e $0$, ad esempio $x = -1$:</p>
+          <p>A sinistra: $\\sqrt[3]{-1 + 27} = \\sqrt[3]{26} \\approx 2.96$. A destra: $-1 + 3 = 2$. ($2.96 \\ge 2$, VERO!).</p>
+          <p><strong>Conclusione:</strong> L'intervallo continuo che soddisfa la disequazione è $-3 \\le x \\le 0$. La risposta corretta è la <strong>(D)</strong>.</p>
+        `
+      },
+      {
+        category: "Esponenziali",
+        text: "Trovare le soluzioni dell'equazione: $2e^{2x} - 4e^x - 6 = 0$",
+        options: [
+          { letter: "A", text: "$x = 3$" },
+          { letter: "B", text: "$x = 0$ e $x = \\ln 3$" },
+          { letter: "C", text: "non ci sono soluzioni" },
+          { letter: "D", text: "$x = \\ln 3$" }
+        ],
+        correct: "D",
+        explanation: `
+          <p><strong>Passaggio 1 (Sostituzione di variabile):</strong> Poniamo $t = e^x$ con la condizione $t > 0$. L'equazione diventa: $2t^2 - 4t - 6 = 0 \\implies t^2 - 2t - 3 = 0$.</p>
+          <p><strong>Passaggio 2 (Scomposizione):</strong> $(t - 3)(t + 1) = 0$, da cui $t = 3$ oppure $t = -1$.</p>
+          <p><strong>Passaggio 3 (Verifica positività):</strong> Poiché $t = e^x > 0$, la soluzione $t = -1$ va scartata. Rimane $e^x = 3 \\implies x = \\ln 3$.</p>
+          <p><strong>Conclusione:</strong> La risposta corretta è la <strong>(D)</strong>.</p>
+        `
+      },
+      {
+        category: "Esponenziali",
+        text: "Trovare le soluzioni dell'equazione: $e^{x^3 - 8} = -1$",
+        options: [
+          { letter: "A", text: "$x = 2$" },
+          { letter: "B", text: "$x = -2$" },
+          { letter: "C", text: "nessuna soluzione" },
+          { letter: "D", text: "$x = \\sqrt[3]{7}$" }
+        ],
+        correct: "C",
+        explanation: `
+          <p><strong>Passaggio 1 (Proprietà fondamentale dell'esponenziale):</strong> Per qualunque numero reale $a$, la funzione $e^a$ restituisce un valore **strettamente positivo** ($e^a > 0$).</p>
+          <p><strong>Passaggio 2 (Analisi immediata):</strong> L'equazione richiede che l'esponenziale sia uguale a un numero negativo ($-1$), il che è impossibile in $\\mathbb{R}$.</p>
+          <p><strong>Conclusione:</strong> Non serve fare alcun calcolo sull'esponente! La risposta corretta è la <strong>(C)</strong>.</p>
+        `
+      },
+      {
+        category: "Valore Assoluto",
+        text: "Risolvere la disequazione: $\vert{}x - 3\vert{} \\le x$",
+        options: [
+          { letter: "A", text: "$x < 3$" },
+          { letter: "B", text: "$\\frac{3}{2} \\le x \\le 3$" },
+          { letter: "C", text: "$x \\ge \\frac{3}{2}$" },
+          { letter: "D", text: "per ogni $x \\in \\mathbb{R}$" }
+        ],
+        correct: "C",
+        explanation: `
+          <p><strong>Passaggio 1 (Test valori):</strong> Proviamo $x = 0$: $|-3| \\le 0 \\implies 3 \\le 0$ (FALSO, quindi escludiamo A, B, D).</p>
+          <p><strong>Passaggio 2 (Test valore grande):</strong> Proviamo $x = 5$: $|5 - 3| \\le 5 \\implies 2 \\le 5$ (VERO).</p>
+          <p><strong>Passaggio 3 (Punto di confine):</strong> Per $x = 1.5$: $|1.5 - 3| = |-1.5| = 1.5 \\le 1.5$ (VERO).</p>
+          <p><strong>Conclusione:</strong> La disequazione è soddisfatta per $x \\ge \\frac{3}{2}$. La risposta corretta è la <strong>(C)</strong>.</p>
+        `
+      },
+      {
+        category: "Disequazioni Fratte",
+        text: "Risolvere la disequazione: $\\frac{x - 2}{x} < \\frac{3}{2}$",
+        options: [
+          { letter: "A", text: "$x \\ge 3$" },
+          { letter: "B", text: "$x < 0$" },
+          { letter: "C", text: "$-1 < x < 3, x \\neq 0$" },
+          { letter: "D", text: "$x > -1, x \\neq 0$" }
+        ],
+        correct: "D",
+        explanation: `
+          <p><strong>Passaggio 1 (Test valori negativi):</strong> Proviamo $x = -2$: $\\frac{-4}{-2} = 2 < 1.5$ (FALSO, quindi B e C sono errate).</p>
+          <p><strong>Passaggio 2 (Test valore positivo piccolo):</strong> Proviamo $x = 1$: $\\frac{1-2}{1} = -1 < 1.5$ (VERO, quindi $x = 1$ deve far parte della soluzione).</p>
+          <p>L'opzione A ($x \\ge 3$) non include $x = 1$, mentre l'opzione D la include.</p>
+          <p><strong>Conclusione:</strong> La risposta corretta è la <strong>(D)</strong>.</p>
+        `
+      },
+      {
+        category: "Geometria Analitica",
+        text: "Determinare l'equazione della retta passante per il punto $P(1, 2)$ e parallela alla retta $y = 3x - 5$.",
+        options: [
+          { letter: "A", text: "$y = 3x - 1$" },
+          { letter: "B", text: "$y = -3x + 5$" },
+          { letter: "C", text: "$y = 3x + 2$" },
+          { letter: "D", text: "$y = \\frac{1}{3}x + 2$" }
+        ],
+        correct: "A",
+        explanation: `
+          <p><strong>Passaggio 1 (Parallelismo):</strong> Rette parallele hanno lo stesso coefficiente angolare $m = 3$. L'equazione deve essere del tipo $y = 3x + q$ (escludiamo B e D).</p>
+          <p><strong>Passaggio 2 (Sostituzione del punto $P$):</strong> Sostituiamo $x = 1$ e $y = 2$ nell'opzione A: $2 = 3(1) - 1 \\implies 2 = 2$ (VERO).</p>
+          <p><strong>Conclusione:</strong> La risposta corretta è la <strong>(A)</strong>.</p>
+        `
+      },
+      {
+        category: "Logica",
+        text: "Qual è la negazione della proposizione: 'Tutti gli studenti di Ingegneria hanno superato l'esame OFA'?",
+        options: [
+          { letter: "A", text: "Nessun studente di Ingegneria ha superato l'esame OFA." },
+          { letter: "B", text: "Almeno uno studente di Ingegneria non ha superato l'esame OFA." },
+          { letter: "C", text: "Tutti gli studenti di Ingegneria non hanno superato l'esame OFA." },
+          { letter: "D", text: "Almeno uno studente di Ingegneria ha superato l'esame OFA." }
+        ],
+        correct: "B",
+        explanation: `
+          <p><strong>Passaggio 1 (Negazione del quantificatore universale $\\forall$):</strong> La negazione della frase 'Tutti gli elementi soddisfano $P$' ($\ meq \\forall x P(x)$) equivale a 'Esiste almeno un elemento che NON soddisfa $P$' ($\ meq \\exists x \\neg P(x)$).</p>
+          <p><strong>Conclusione:</strong> Basta trovare un singolo studente che non abbia superato la prova per smentire l'affermazione universale. La risposta corretta è la <strong>(B)</strong>.</p>
+        `
+      },
+      {
+        category: "Trigonometria",
+        text: "Risolvere la disequazione trigonometrica: $2\\sin\\left(\\frac{x}{2}\\right) > 0$ nell'intervallo $[0, 2\\pi]$.",
+        options: [
+          { letter: "A", text: "$0 < x < 2\\pi$" },
+          { letter: "B", text: "$-\\frac{\\pi}{2} < x < \\frac{\\pi}{2}$" },
+          { letter: "C", text: "$0 < x < \\pi$" },
+          { letter: "D", text: "$\\pi < x < 2\\pi$" }
+        ],
+        correct: "A",
+        explanation: `
+          <p><strong>Passaggio 1 (Analisi dell'argomento):</strong> Se $x \\in (0, 2\\pi)$, l'argomento $\\frac{x}{2}$ appartiene all'intervallo $\\left(0, \\pi\\right)$.</p>
+          <p><strong>Passaggio 2 (Segno del seno):</strong> Nel primo e secondo quadrante (ovvero tra $0$ e $\\pi$), la funzione seno è sempre strettamente positiva ($\ meq \\sin(t) > 0$).</p>
+          <p><strong>Conclusione:</strong> Pertanto, la disequazione è verificata per l'intero intervallo aperto $(0, 2\\pi)$. La risposta corretta è la <strong>(A)</strong>.</p>
+        `
+      },
+      {
+        category: "Insiemi",
+        text: "Dati due insiemi $A = \\{1, 2, 3, 4\\}$ e $B = \\{3, 4, 5, 6\\}$, quanti elementi contiene l'insieme unione $A \\cup B$?",
+        options: [
+          { letter: "A", text: "8" },
+          { letter: "B", text: "6" },
+          { letter: "C", text: "2" },
+          { letter: "D", text: "4" }
+        ],
+        correct: "B",
+        explanation: `
+          <p><strong>Passaggio 1 (Definizione di unione):</strong> L'insieme unione $A \\cup B$ contiene tutti gli elementi che appartengono ad $A$, a $B$ o a entrambi, senza duplicati.</p>
+          <p><strong>Passaggio 2 (Conteggio):</strong> Gli elementi distinti sono $\\{1, 2, 3, 4, 5, 6\\}$, ovvero $6$ elementi totali.</p>
+          <p><strong>Conclusione:</strong> La risposta corretta è la <strong>(B)</strong>.</p>
+        `
+      },
+      {
+        category: "Geometria Analitica",
+        text: "Qual è il centro e il raggio della circonferenza di equazione $x^2 + y^2 - 4x + 6y = 0$?",
+        options: [
+          { letter: "A", text: "Centro $(2, -3)$ e Raggio $r = \\sqrt{13}$" },
+          { letter: "B", text: "Centro $(-2, 3)$ e Raggio $r = 13$" },
+          { letter: "C", text: "Centro $(4, -6)$ e Raggio $r = 5$" },
+          { letter: "D", text: "Centro $(0, 0)$ e Raggio $r = 2$" }
+        ],
+        correct: "A",
+        explanation: `
+          <p><strong>Passaggio 1 (Coordinate del centro):</strong> Data l'equazione $x^2 + y^2 + ax + by + c = 0$, il centro è $C\\left(-\\frac{a}{2}, -\\frac{b}{2}\\right) = \\left(-\\frac{-4}{2}, -\\frac{6}{2}\\right) = (2, -3)$.</p>
+          <p><strong>Passaggio 2 (Calcolo del raggio):</strong> Il raggio è $r = \\sqrt{x_C^2 + y_C^2 - c} = \\sqrt{2^2 + (-3)^2 - 0} = \\sqrt{4 + 9} = \\sqrt{13}$.</p>
+          <p><strong>Conclusione:</strong> La risposta corretta è la <strong>(A)</strong>.</p>
+        `
+      },
+      {
+        category: "Polinomi",
+        text: "Scomporre in fattori il polinomio: $P(x) = x^3 - 7x + 6$",
+        options: [
+          { letter: "A", text: "$(x - 1)(x - 2)(x + 3)$" },
+          { letter: "B", text: "$(x + 1)(x + 2)(x - 3)$" },
+          { letter: "C", text: "$(x - 1)(x + 2)(x - 3)$" },
+          { letter: "D", text: "$(x + 1)(x - 2)(x - 3)$" }
+        ],
+        correct: "A",
+        explanation: `
+          <p><strong>Passaggio 1 (Zero Calcoli - Test delle radici):</strong> Un polinomio si annulla nei punti in cui si annullano i singoli fattori.</p>
+          <p>Testiamo $x = 1$: $P(1) = 1^3 - 7(1) + 6 = 1 - 7 + 6 = 0$ (VERO! Quindi $(x - 1)$ deve essere un fattore: escludiamo B e D).</p>
+          <p>Testiamo $x = 2$: $P(2) = 2^3 - 7(2) + 6 = 8 - 14 + 6 = 0$ (VERO! Quindi $(x - 2)$ è un fattore).</p>
+          <p><strong>Conclusione:</strong> La risposta corretta è la <strong>(A)</strong>.</p>
+        `
+      },
+      {
+        category: "Equazioni Fratte",
+        text: "Risolvere l'equazione: $\\frac{x + 2}{x - 1} = 0$",
+        options: [
+          { letter: "A", text: "$x = -2$" },
+          { letter: "B", text: "$x = 1$" },
+          { letter: "C", text: "$x = -2$ e $x = 1$" },
+          { letter: "D", text: "nessuna soluzione" }
+        ],
+        correct: "A",
+        explanation: `
+          <p><strong>Passaggio 1 (Condizione di Esistenza):</strong> Il denominatore non può mai annullarsi, quindi $x \\neq 1$ (escludiamo B e C).</p>
+          <p><strong>Passaggio 2 (Annullamento del numeratore):</strong> Una frazione è nulla quando il numeratore è zero: $x + 2 = 0 \\implies x = -2$.</p>
+          <p><strong>Conclusione:</strong> La risposta corretta è la <strong>(A)</strong>.</p>
+        `
+      },
+      {
+        category: "Funzioni",
+        text: "Qual è il dominio della funzione reale $f(x) = \\ln(x^2 - 4)$?",
+        options: [
+          { letter: "A", text: "$x < -2$ oppure $x > 2$" },
+          { letter: "B", text: "$-2 < x < 2$" },
+          { letter: "C", text: "$x \\ge 2$" },
+          { letter: "D", text: "per ogni $x \\in \\mathbb{R}$" }
+        ],
+        correct: "A",
+        explanation: `
+          <p><strong>Passaggio 1 (Condizione dell'argomento):</strong> L'argomento del logaritmo deve essere strettamente positivo: $x^2 - 4 > 0$.</p>
+          <p><strong>Passaggio 2 (Risoluzione rapida):</strong> $x^2 > 4$ significa che la distanza da zero è maggiore di $2$, cioè valori esterni: $x < -2$ oppure $x > 2$.</p>
+          <p><strong>Conclusione:</strong> La risposta corretta è la <strong>(A)</strong>.</p>
+        `
+      },
+      {
+        category: "Geometria Analitica",
+        text: "Quali sono i fuochi dell'ellisse di equazione $\\frac{x^2}{25} + \\frac{y^2}{9} = 1$?",
+        options: [
+          { letter: "A", text: "$F_1(-4, 0)$ e $F_2(4, 0)$" },
+          { letter: "B", text: "$F_1(0, -4)$ e $F_2(0, 4)$" },
+          { letter: "C", text: "$F_1(-5, 0)$ e $F_2(5, 0)$" },
+          { letter: "D", text: "$F_1(-3, 0)$ e $F_2(3, 0)$" }
+        ],
+        correct: "A",
+        explanation: `
+          <p><strong>Passaggio 1 (Identificazione semiassi):</strong> $a^2 = 25 \\implies a = 5$ e $b^2 = 9 \\implies b = 3$. Poiché $a > b$, i fuochi si trovano sull'asse $x$.</p>
+          <p><strong>Passaggio 2 (Relazione focale):</strong> $c^2 = a^2 - b^2 = 25 - 9 = 16 \\implies c = 4$.</p>
+          <p><strong>Conclusione:</strong> Le coordinate dei fuochi sono $(\\pm 4, 0)$. La risposta corretta è la <strong>(A)</strong>.</p>
+        `
+      },
+      {
+        category: "Trigonometria",
+        text: "Quanto vale $\\cos(120^\\circ)$?",
+        options: [
+          { letter: "A", text: "$-\\frac{1}{2}$" },
+          { letter: "B", text: "$\\frac{1}{2}$" },
+          { letter: "C", text: "$-\\frac{\\sqrt{3}}{2}$" },
+          { letter: "D", text: "$\\frac{\\sqrt{3}}{2}$" }
+        ],
+        correct: "A",
+        explanation: `
+          <p><strong>Passaggio 1 (Analisi del quadrante):</strong> $120^\\circ$ si trova nel **secondo quadrante**, dove il coseno è **negativo** (escludiamo B e D).</p>
+          <p><strong>Passaggio 2 (Angoli associati):</strong> $\\cos(120^\\circ) = \\cos(180^\\circ - 60^\\circ) = -\\cos(60^\\circ) = -\\frac{1}{2}$.</p>
+          <p><strong>Conclusione:</strong> La risposta corretta è la <strong>(A)</strong>.</p>
+        `
+      }
+    ];
+
+    // STATO DELL'APPLICAZIONE
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let selectedOption = null;
+
+    // INIZIALIZZAZIONE AL CARICAMENTO DELLA PAGINA
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      renderQuestion();
+    });
+
+    // MOSTRA IL QUESITO CORRENTE
+    function renderQuestion() {
+      const q = quizData[currentQuestionIndex];
+      selectedOption = null;
+
+      document.getElementById('question-number').innerText = `Quesito ${currentQuestionIndex + 1} di ${quizData.length}`;
+      document.getElementById('question-category').innerText = q.category;
+      document.getElementById('question-text').innerHTML = q.text;
+
+      const container = document.getElementById('options-container');
+      container.innerHTML = '';
+
+      q.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = `option-btn border border-slate-700 bg-slate-900/50 hover:bg-slate-700/60 text-left p-4 rounded-xl transition-all flex items-start gap-3 w-full`;
+        btn.onclick = () => selectOption(btn, opt.letter);
+        btn.innerHTML = `
+          <span class="font-bold text-red-400 bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700 text-sm">${opt.letter}</span>
+          <span class="text-slate-200 mt-0.5">${opt.text}</span>
+        `;
+        container.appendChild(btn);
+      });
+
+      document.getElementById('submit-btn').disabled = true;
+
+      // Aggiorna le formule matematiche renderizzate da MathJax
+      if (window.MathJax) {
+        MathJax.typesetPromise();
+      }
+    }
+
+    // SELEZIONE DI UN'OPZIONE
+    function selectOption(btnElement, letter) {
+      selectedOption = letter;
+      const allBtns = document.querySelectorAll('.option-btn');
+      allBtns.forEach(b => {
+        b.classList.remove('border-red-500', 'bg-red-500/10');
+        b.classList.add('border-slate-700', 'bg-slate-900/50');
+      });
+
+      btnElement.classList.remove('border-slate-700', 'bg-slate-900/50');
+      btnElement.classList.add('border-red-500', 'bg-red-500/10');
+
+      document.getElementById('submit-btn').disabled = false;
+    }
+
+    // VERIFICA DELLA RISPOSTA E APERTURA DELLA MODALE
+    function checkAnswer() {
+      if (!selectedOption) return;
+
+      const q = quizData[currentQuestionIndex];
+      const isCorrect = selectedOption === q.correct;
+
+      if (isCorrect) score++;
+
+      document.getElementById('score-display').innerText = `${score} / ${quizData.length}`;
+
+      const headerStatus = document.getElementById('modal-header-status');
+      if (isCorrect) {
+        headerStatus.className = "flex items-center gap-2 font-bold text-lg text-emerald-400";
+        headerStatus.innerHTML = `<i data-lucide="check-circle-2" class="w-6 h-6"></i> Risposta Corretta!`;
+      } else {
+        headerStatus.className = "flex items-center gap-2 font-bold text-lg text-rose-400";
+        headerStatus.innerHTML = `<i data-lucide="x-circle" class="w-6 h-6"></i> Risposta Errata (Corretta: ${q.correct})`;
+      }
+
+      document.getElementById('explanation-text').innerHTML = q.explanation;
+      document.getElementById('modal-overlay').classList.remove('hidden');
+
+      lucide.createIcons();
+      if (window.MathJax) {
+        MathJax.typesetPromise();
+      }
+    }
+
+    // CHIUSURA DELLA MODALE
+    function closeModal() {
+      document.getElementById('modal-overlay').classList.add('hidden');
+    }
+
+    // AVANZAMENTO AL PROSSIMO QUESITO
+    function nextQuestion() {
+      closeModal();
+      currentQuestionIndex++;
+      if (currentQuestionIndex < quizData.length) {
+        renderQuestion();
+      } else {
+        showFinalResults();
+      }
+    }
+
+    // MOSTRA I RISULTATI FINALI
+    function showFinalResults() {
+      const card = document.getElementById('quiz-card');
+      const percentage = Math.round((score / quizData.length) * 100);
+
+      let statusMessage = "";
+      if (percentage >= 60) {
+        statusMessage = `<span class="text-emerald-400 font-bold">OFA SUPERATI CON SUCCESSO!</span>`;
+      } else {
+        statusMessage = `<span class="text-rose-400 font-bold">ESITO INSUFFICIENTE</span> - Rivedi le scorciatoie e riprova.`;
+      }
+
+      card.innerHTML = `
+        <div class="text-center py-8 space-y-4">
+          <div class="inline-flex p-4 bg-slate-900 rounded-full border border-slate-700 mb-2">
+            <i data-lucide="award" class="w-12 h-12 text-yellow-400"></i>
+          </div>
+          <h3 class="text-2xl font-bold text-white">Simulazione Completata!</h3>
+          <p class="text-lg text-slate-300">Punteggio Totale: <strong class="text-white">${score} / ${quizData.length}</strong> (${percentage}%)</p>
+          <p class="text-base">${statusMessage}</p>
+          <div class="pt-4">
+            <button onclick="resetQuiz()" class="px-6 py-3 bg-red-600 hover:bg-red-500 text-white font-medium rounded-xl transition-all shadow-md inline-flex items-center gap-2">
+              <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+              Ricomincia Simulazione
+            </button>
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    // RESET DEL QUIZ
+    function resetQuiz() {
+      currentQuestionIndex = 0;
+      score = 0;
+      document.getElementById('score-display').innerText = `0 / ${quizData.length}`;
+      location.reload();
+    }
+  </script>
+</body>
+</html>
